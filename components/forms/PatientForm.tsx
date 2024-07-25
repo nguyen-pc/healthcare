@@ -101,7 +101,7 @@ const PatientForm = () => {
           // iconAlt="email"
         />
         <SubmitButton className="" isLoading={isLoading}>
-          Get Started{" "}
+          Get Started
         </SubmitButton>
       </form>
     </Form>
