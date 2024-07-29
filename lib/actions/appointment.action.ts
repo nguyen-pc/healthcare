@@ -26,3 +26,17 @@ export const createAppointment = async (
     console.error("An error occurred while creating a new appointment:", error);
   }
 };
+
+export const getAppointment = async (appointmentId: string) => {
+  try {
+    const appointment = await database.getDocument(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      appointmentId
+    );
+
+    return parseStringify(appointment);
+  } catch (e) {
+    console.log(e);
+  }
+};
