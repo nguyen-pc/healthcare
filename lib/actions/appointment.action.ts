@@ -7,7 +7,7 @@ import {
   DATABASE_ID,
 } from "../appwirte.config";
 import { revalidatePath } from "next/cache";
-import { parseStringify } from "../utils";
+import { formatDateTime, parseStringify } from "../utils";
 import { Appointment } from "@/types/appwrite.types";
 
 export const createAppointment = async (
@@ -52,10 +52,9 @@ export const getRecentAppointmentList = async () => {
 
     const initialCounts = {
       scheduledCount: 0,
-      pendingCount:0,
-      cancelledCount:0
-
-    }
+      pendingCount: 0,
+      cancelledCount: 0,
+    };
 
     const counts = ((await appointments).documents as Appointment[]).reduce(
       (acc, appointment) => {
@@ -78,11 +77,47 @@ export const getRecentAppointmentList = async () => {
     const data = {
       totalCount: (await appointments).total,
       ...counts,
-      documents: (await appointments).documents
-    }
+      documents: (await appointments).documents,
+    };
 
-    return parseStringify(data)
+    return parseStringify(data);
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const updateAppointment = async ({
+  appointmentId,
+  userId,
+  // timeZone,
+  appointment,
+  type,
+}: UpdateAppointmentParams) => {
+  try {
+    // Update appointment to scheduled -> https://appwrite.io/docs/references/cloud/server-nodejs/databases#updateDocument
+    const updatedAppointment = await database.updateDocument(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      appointmentId,
+      appointment
+    );
+
+    if (!updatedAppointment) throw Error;
+
+    // const smsMessage = `Greetings from CarePulse. ${
+    //   type === "schedule"
+    //     ? `Your appointment is confirmed for ${
+    //         formatDateTime(appointment.schedule!, timeZone).dateTime
+    //       } with Dr. ${appointment.primaryPhysician}`
+    //     : `We regret to inform that your appointment for ${
+    //         formatDateTime(appointment.schedule!, timeZone).dateTime
+    //       } is cancelled. Reason:  ${appointment.cancellationReason}`
+    // }.`;
+    // await sendSMSNotification(userId, smsMessage);
+
+    revalidatePath("/admin");
+    return parseStringify(updatedAppointment);
+  } catch (error) {
+    console.error("An error occurred while scheduling an appointment:", error);
   }
 };
