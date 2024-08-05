@@ -95,6 +95,7 @@ const AppointmentForm = ({
           );
         }
       } else {
+        console.log("update appointment")
         const appointmentToUpdate = {
           userId,
           appointmentId: appointment?.$id!,
